@@ -2,34 +2,39 @@
 var fs = require('fs');
 var request = require('supertest');
 var should = require('should');
-var route = require('koa-route');
+var Router = require('koa-router');
 var range = require('../');
 var Koa = require('koa');
 var app = new Koa();
 
+var router = new Router();
 var rawbody = new Buffer(1024);
 var rawFileBuffer = fs.readFileSync('./README.md') + '';
 
 app.use(range);
-app.use(route.get('/', async function(ctx) {
-  ctx.body = rawbody;
-}));
-app.use(route.post('/', async function(ctx) {
-  ctx.status = 200;
-}));
-app.use(route.get('/json', async function(ctx) {
-  ctx.body = {foo:'bar'};
-}));
-app.use(route.get('/string', async function(ctx) {
-  ctx.body = 'koa-range';
-}));
-app.use(route.get('/stream', async function(ctx) {
-  ctx.body = fs.createReadStream('./README.md');
-}));
-app.use(route.get('/empty', async function(ctx) {
-  ctx.body = undefined;
-  ctx.status = 304;
-}));
+
+router.get('/',  function*() {
+  this.body = rawbody;
+});
+router.post('/',  function*() {
+  this.status = 200;
+});
+router.get('/json',  function*() {
+  this.body = {foo:'bar'};
+});
+router.get('/string',  function*() {
+  this.body = 'koa-range';
+});
+router.get('/stream',  function*() {
+  this.body = fs.createReadStream('./README.md');
+});
+router.get('/empty',  function*() {
+  this.body = undefined;
+  this.status = 304;
+});
+
+app.use(router.routes());
+app.use(router.allowedMethods());
 
 app.on('error', function(err) {
   throw err;
@@ -226,3 +231,4 @@ describe('range requests with empty body', function() {
     });
   });
 });
+

@@ -1,5 +1,5 @@
 
-koa-range
+koa-range v1.x fork from https://github.com/koajs/koa-range
 =================
 range request implementation for koa
 
@@ -18,33 +18,36 @@ range request implementation for koa
 $ npm install koa-range
 ```
 
-### Usage (with koa@2)
+### Usage (with koa@1.x)
 
 ```js
 var fs = require('fs');
 var range = require('koa-range');
-var route = require('koa-route');
+var Router = require('koa-router');
 var Koa = require('koa');
 var app = new Koa();
 
 app.use(range);
 
 // via buffer
-app.use(route.get('/', async function (ctx) {
-  ctx.body = new Buffer(100);
-}));
+route.get('/',  function* () {
+  this.body = new Buffer(100);
+});
 
 // via object
-app.use(route.get('/json', async function (ctx) {
-  ctx.body = {
+route.get('/json',  function* () {
+  this.body = {
     'foo': 'bar'
   };
-}));
+});
 
 // via readable stream
-app.use(route.get('/stream', async function (ctx) {
-  ctx.body = fs.createReadStream('your path');
-}));
+route.get('/stream',  function* () {
+  this.body = fs.createReadStream('your path');
+});
+
+app.use(router.routes());
+app.use(router.allowedMethods());
 
 ```
 
